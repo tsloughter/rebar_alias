@@ -1,7 +1,6 @@
 -module(rebar_alias).
 
 -export([init/1]).
--export([init_alias/3]).
 
 -define(PROVIDER, rebar_alias).
 -define(DEPS, []).
@@ -61,4 +60,4 @@ do_func(Cmds) ->
 to_args([]) ->
     {nil,1};
 to_args([Cmd | Rest]) ->
-    {cons,1, {tuple,1,[{string,1,atom_to_list(Cmd)},{nil,1}]}, to_args(Rest)}.
+    {cons,1,{tuple,1,[{string,1,atom_to_list(Cmd)},{nil,1}]}, to_args(Rest)}.
