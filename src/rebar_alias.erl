@@ -1,10 +1,10 @@
--module('rebar_alias').
+-module(rebar_alias).
 
 -export([init/1]).
 -export([init_alias/3]).
 
--define(PROVIDER, 'rebar_alias').
--define(DEPS, [app_discovery]).
+-define(PROVIDER, rebar_alias).
+-define(DEPS, []).
 
 %% ===================================================================
 %% Public API
@@ -17,16 +17,12 @@ init(State) ->
                 end, {ok, State}, Aliases).
 
 init_alias(Alias, Cmds, State) ->
-    {ok, MTs, _} = erl_scan:string(lists:flatten(io_lib:format("-module(~s).", [Alias]))),
-    {ok, ETs, _} = erl_scan:string("-export([do/1])."),
-    {ok, FTs, _} = erl_scan:string(do_func(Cmds)),
-
-    {ok,MF} = erl_parse:parse_form(MTs),
-    {ok,EF} = erl_parse:parse_form(ETs),
-    {ok,FF} = erl_parse:parse_form(FTs),
+    {ok,MF} = erl_parse:parse_form(module(Alias)),
+    {ok,EF} = erl_parse:parse_form(exports()),
+    {ok,FF} = erl_parse:parse_form(do_func(Cmds)),
 
     {ok, _, Bin} = compile:forms([MF,EF,FF]),
-    code:load_binary(Alias, "nofile", Bin),
+    code:load_binary(Alias, "none", Bin),
 
     Provider = providers:create([
             {name, Alias},
@@ -40,12 +36,55 @@ init_alias(Alias, Cmds, State) ->
     ]),
     {ok, rebar_state:add_provider(State, Provider)}.
 
-do_func(Cmds) ->
-    CmdsString = [{atom_to_list(Cmd), []} || Cmd <- Cmds],
-    lists:flatten(io_lib:format("do(State) -> rebar_prv_do:do_tasks(~p, State).", [CmdsString])).
-
 example(Alias) ->
     "rebar3 " ++ atom_to_list(Alias).
 
 desc(Cmds) ->
     "Equivalent to running: rebar3 do " ++ string:join([atom_to_list(Cmd) || Cmd <- Cmds], ",").
+
+module(Name) ->
+    [{'-',1},
+     {atom,1,module},
+     {'(',1},
+     {atom,1,Name},
+     {')',1},
+     {dot,1}].
+
+exports() ->
+    [{'-',1},
+     {atom,1,export},
+     {'(',1},
+     {'[',1},
+     {atom,1,do},
+     {'/',1},
+     {integer,1,1},
+     {']',1},
+     {')',1},
+     {dot,1}].
+
+do_func(Cmds) ->
+    [{atom,1,do},
+     {'(',1},
+     {var,1,'State'},
+     {')',1},
+     {'->',1},
+     {atom,1,rebar_prv_do},
+     {':',1},
+     {atom,1,do_tasks},
+     {'(',1},
+     {'[',1}] ++ to_cmd_args_list(Cmds) ++ [{']',1},
+                                            {',',1},
+                                            {var,1,'State'},
+                                            {')',1},
+                                            {dot,1}].
+
+to_cmd_args_list(Cmds) ->
+    lists:droplast(lists:flatten([
+                                 [{'{',1},
+                                  {string,1,atom_to_list(Cmd)},
+                                  {',',1},
+                                  {'[',1},
+                                  {']',1},
+                                  {'}',1},
+                                  {',',1}]
+                                 || Cmd <- Cmds])).
