@@ -17,11 +17,11 @@ init(State) ->
                 end, {ok, State}, Aliases).
 
 init_alias(Alias, Cmds, State) ->
-    {ok,MF} = erl_parse:parse_form(module(Alias)),
-    {ok,EF} = erl_parse:parse_form(exports()),
-    {ok,FF} = erl_parse:parse_form(do_func(Cmds)),
+    MF = module(Alias),
+    EF = exports(),
+    FF = do_func(Cmds),
 
-    {ok, _, Bin} = compile:forms([MF,EF,FF]),
+    {ok, _, Bin} = compile:forms([MF, EF, FF]),
     code:load_binary(Alias, "none", Bin),
 
     Provider = providers:create([
@@ -43,48 +43,22 @@ desc(Cmds) ->
     "Equivalent to running: rebar3 do " ++ string:join([atom_to_list(Cmd) || Cmd <- Cmds], ",").
 
 module(Name) ->
-    [{'-',1},
-     {atom,1,module},
-     {'(',1},
-     {atom,1,Name},
-     {')',1},
-     {dot,1}].
+    {attribute,1,module,Name}.
 
 exports() ->
-    [{'-',1},
-     {atom,1,export},
-     {'(',1},
-     {'[',1},
-     {atom,1,do},
-     {'/',1},
-     {integer,1,1},
-     {']',1},
-     {')',1},
-     {dot,1}].
+    {attribute,1,export,[{do,1}]}.
 
 do_func(Cmds) ->
-    [{atom,1,do},
-     {'(',1},
-     {var,1,'State'},
-     {')',1},
-     {'->',1},
-     {atom,1,rebar_prv_do},
-     {':',1},
-     {atom,1,do_tasks},
-     {'(',1},
-     {'[',1}] ++ to_cmd_args_list(Cmds) ++ [{']',1},
-                                            {',',1},
-                                            {var,1,'State'},
-                                            {')',1},
-                                            {dot,1}].
+    {function,1,do,1,
+     [{clause,1,
+       [{var,1,'State'}],
+       [],
+       [{call,1,
+         {remote,1,{atom,1,rebar_prv_do},{atom,1,do_tasks}},
+         [to_args(Cmds),{var,1,'State'}]}]}]}.
 
-to_cmd_args_list(Cmds) ->
-    lists:droplast(lists:flatten([
-                                 [{'{',1},
-                                  {string,1,atom_to_list(Cmd)},
-                                  {',',1},
-                                  {'[',1},
-                                  {']',1},
-                                  {'}',1},
-                                  {',',1}]
-                                 || Cmd <- Cmds])).
+
+to_args([]) ->
+    {nil,1};
+to_args([Cmd | Rest]) ->
+    {cons,1, {tuple,1,[{string,1,atom_to_list(Cmd)},{nil,1}]}, to_args(Rest)}.
