@@ -1,5 +1,5 @@
 {application, 'rebar_alias',
- [{description, "A rebar plugin"},
+ [{description, "Alias rebar3 tasks to one command."},
   {vsn, "0.1.0"},
   {registered, []},
   {applications,
