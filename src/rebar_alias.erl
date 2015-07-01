@@ -16,16 +16,18 @@ init(State) ->
                 end, {ok, State}, Aliases).
 
 init_alias(Alias, Cmds, State) ->
-    MF = module(Alias),
+    Module = list_to_atom("rebar_prv_alias_" ++ atom_to_list(Alias)),
+
+    MF = module(Module),
     EF = exports(),
     FF = do_func(Cmds),
 
     {ok, _, Bin} = compile:forms([MF, EF, FF]),
-    code:load_binary(Alias, "none", Bin),
+    code:load_binary(Module, "none", Bin),
 
     Provider = providers:create([
             {name, Alias},
-            {module, Alias},
+            {module, Module},
             {bare, true},
             {deps, []},
             {example, example(Alias)},
