@@ -11,5 +11,5 @@
 
   {contributors, ["Tristan Sloughter"]},
   {licenses, ["MIT"]},
-  {links, [{"Github","https://github.com/tsloughter/rebar_alias"}]}]}
+  {links, [{"Github","https://github.com/tsloughter/rebar_alias"}]}
  ]}.
