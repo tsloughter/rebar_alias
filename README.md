@@ -13,9 +13,7 @@ Use
 
 Add the plugin to your rebar config:
 
-    {plugins, [
-        { rebar_alias, ".*", {git, "git@host:user/rebar_alias.git", {branch, "master"}}}
-    ]}.
+    {plugins, [rebar_alias]}.
 
 Then just call your plugin directly in an existing application:
 
