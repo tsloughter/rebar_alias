@@ -41,7 +41,11 @@ example(Alias) ->
     "rebar3 " ++ atom_to_list(Alias).
 
 desc(Cmds) ->
-    "Equivalent to running: rebar3 do " ++ string:join([atom_to_list(Cmd) || Cmd <- Cmds], ",").
+    "Equivalent to running: rebar3 do " ++ string:join(lists:map(fun({Cmd, Args}) ->
+                                                                     atom_to_list(Cmd) ++ " " ++ Args;
+                                                                    (Cmd) ->
+                                                                     atom_to_list(Cmd)
+                                                                 end, Cmds), ",").
 
 module(Name) ->
     {attribute,1,module,Name}.
@@ -61,5 +65,7 @@ do_func(Cmds) ->
 
 to_args([]) ->
     {nil,1};
+to_args([{Cmd, Args} | Rest]) ->
+    {cons,1,{tuple,1,[{string,1,atom_to_list(Cmd)},{string,1,Args}]}, to_args(Rest)};
 to_args([Cmd | Rest]) ->
     {cons,1,{tuple,1,[{string,1,atom_to_list(Cmd)},{nil,1}]}, to_args(Rest)}.

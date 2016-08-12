@@ -18,7 +18,7 @@ Add the plugin to your rebar config:
 Then just call your plugin directly in an existing application:
 
 ```erlang
-{alias, [{check, [eunit, ct]}]}.
+{alias, [{check, [eunit, {ct, "--sys_config=config/app.config"}]}]}.
 ```
 
     $ rebar3 check
