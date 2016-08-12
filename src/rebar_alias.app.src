@@ -1,15 +1,11 @@
-{application, 'rebar_alias',
- [{description, "Alias rebar3 tasks to one command."},
-  {vsn, "0.1.0"},
-  {registered, []},
-  {applications,
-   [kernel,
-    stdlib
-   ]},
-  {env,[]},
-  {modules, []},
-
-  {contributors, ["Tristan Sloughter"]},
-  {licenses, ["MIT"]},
-  {links, [{"Github","https://github.com/tsloughter/rebar_alias"}]}
- ]}.
+{application,rebar_alias,
+             [{description,"Alias rebar3 tasks to one command."},
+              {vsn,"0.2.0"},
+              {registered,[]},
+              {applications,[kernel,stdlib]},
+              {env,[]},
+              {modules,[]},
+              {contributors,["Tristan Sloughter"]},
+              {licenses,["MIT"]},
+              {links,[{"Github",
+                       "https://github.com/tsloughter/rebar_alias"}]}]}.
