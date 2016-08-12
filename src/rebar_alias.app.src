@@ -5,7 +5,7 @@
               {applications,[kernel,stdlib]},
               {env,[]},
               {modules,[]},
-              {contributors,["Tristan Sloughter"]},
+              {maintainers,["Tristan Sloughter"]},
               {licenses,["MIT"]},
               {links,[{"Github",
                        "https://github.com/tsloughter/rebar_alias"}]}]}.
